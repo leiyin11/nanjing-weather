@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#132d2a" />
+    <meta
+      name="description"
+      content="A live, interactive weather story for Nanjing, China."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Manrope:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="assets/weather-mark.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css" />
+    <title>Nanjing Atmosphere — Live Weather</title>
+  </head>
+  <body data-sky="clear-day">
+    <a class="skip-link" href="#now">Skip to live weather</a>
+
+    <svg class="svg-defs" aria-hidden="true">
+      <symbol id="icon-refresh" viewBox="0 0 24 24">
+        <path d="M20 11a8 8 0 1 0-2.34 5.66M20 4v7h-7" />
+      </symbol>
+      <symbol id="icon-share" viewBox="0 0 24 24">
+        <circle cx="18" cy="5" r="2.5" />
+        <circle cx="6" cy="12" r="2.5" />
+        <circle cx="18" cy="19" r="2.5" />
+        <path d="m8.2 10.8 7.6-4.4M8.2 13.2l7.6 4.4" />
+      </symbol>
+      <symbol id="icon-arrow" viewBox="0 0 24 24">
+        <path d="M5 12h14m-5-5 5 5-5 5" />
+      </symbol>
+      <symbol id="icon-close" viewBox="0 0 24 24">
+        <path d="m6 6 12 12M18 6 6 18" />
+      </symbol>
+      <symbol id="icon-wind" viewBox="0 0 24 24">
+        <path d="M3 8h11.5a2.5 2.5 0 1 0-2.35-3.35M3 12h15a3 3 0 1 1-2.83 4M3 16h7" />
+      </symbol>
+      <symbol id="icon-drop" viewBox="0 0 24 24">
+        <path d="M12 3s6 6.2 6 11a6 6 0 0 1-12 0c0-4.8 6-11 6-11Z" />
+      </symbol>
+      <symbol id="icon-sun" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="4" />
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42" />
+      </symbol>
+      <symbol id="icon-eye" viewBox="0 0 24 24">
+        <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
+        <circle cx="12" cy="12" r="2.5" />
+      </symbol>
+      <symbol id="icon-pressure" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="8" />
+        <path d="m12 12 3.5-4M6.5 17.5h11" />
+      </symbol>
+      <symbol id="icon-clock" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 7v5l3 2" />
+      </symbol>
+    </svg>
+
+    <div class="atmospheric-canvas" aria-hidden="true">
+      <div class="wash wash-a"></div>
+      <div class="wash wash-b"></div>
+      <div class="grain"></div>
+      <div class="rain-field" id="rain-field"></div>
+      <div class="city-line"></div>
+    </div>
+
+    <div class="loading-screen" id="loading-screen" role="status" aria-live="polite">
+      <div class="loading-mark">
+        <span></span><span></span><span></span>
+      </div>
+      <p>Reading Nanjing’s sky</p>
+      <small>正在读取金陵气象</small>
+    </div>
+
+    <header class="topbar">
+      <a class="brand" href="#now" aria-label="Nanjing Atmosphere home">
+        <span class="brand-seal">宁</span>
+        <span class="brand-copy">
+          <strong>Nanjing Atmosphere</strong>
+          <small>南京 · 32.06° N / 118.80° E</small>
+        </span>
+      </a>
+
+      <div class="topbar-tools">
+        <div class="connection-pill" id="connection-pill">
+          <span class="live-pulse"></span>
+          <span id="connection-label">Connecting</span>
+        </div>
+        <div class="unit-switch" role="group" aria-label="Temperature unit">
+          <button class="unit-button is-active" data-unit="c" aria-pressed="true">°C</button>
+          <button class="unit-button" data-unit="f" aria-pressed="false">°F</button>
+        </div>
+        <button class="icon-button" id="share-button" aria-label="Share this weather">
+          <svg><use href="#icon-share"></use></svg>
+        </button>
+        <button class="icon-button" id="refresh-button" aria-label="Refresh live data">
+          <svg><use href="#icon-refresh"></use></svg>
+        </button>
+      </div>
+    </header>
+
+    <nav class="scene-nav" aria-label="Weather story sections">
+      <span class="scene-nav-line"></span>
+      <a href="#now" data-section="now" class="is-active"><i></i><span>Now</span></a>
+      <a href="#rhythm" data-section="rhythm"><i></i><span>Rhythm</span></a>
+      <a href="#outlook" data-section="outlook"><i></i><span>Outlook</span></a>
+      <a href="#atmosphere" data-section="atmosphere"><i></i><span>Air</span></a>
+      <a href="#city" data-section="city"><i></i><span>City</span></a>
+      <a href="#pipeline" data-section="pipeline"><i></i><span>Live</span></a>
+    </nav>
+
+    <main>
+      <section class="scene hero-scene" id="now" data-scene="01">
+        <div class="scene-number" aria-hidden="true">01 / 06</div>
+        <div class="hero-layout content-width">
+          <div class="hero-copy reveal">
+            <div class="eyebrow">
+              <span>Live from Xuanwu</span>
+              <span class="local-clock" id="local-clock">--:--:-- CST</span>
+            </div>
+
+            <div class="temperature-lockup">
+              <span class="hero-temperature" id="hero-temperature">--°</span>
+              <span class="temperature-caption">Current<br />temperature</span>
+            </div>
+
+            <div class="condition-row">
+              <h1 id="condition-label">Reading the sky…</h1>
+              <span class="condition-cn" id="condition-cn">金陵气象</span>
+            </div>
+            <p class="weather-story" id="weather-story">
+              A live portrait of weather moving across Nanjing.
+            </p>
+
+            <div class="hero-metrics" aria-label="Current weather details">
+              <div>
+                <span>Feels like</span>
+                <strong id="feels-like">--°</strong>
+              </div>
+              <div>
+                <span>Humidity</span>
+                <strong id="humidity">--%</strong>
+              </div>
+              <div>
+                <span>Wind</span>
+                <strong id="wind">-- km/h</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="weather-orbit reveal delay-1" id="weather-orbit">
+            <div class="orbit-ring ring-outer"></div>
+            <div class="orbit-ring ring-inner"></div>
+            <div class="orbit-ticks"></div>
+            <div class="weather-glyph" id="weather-glyph" aria-hidden="true"></div>
+            <div class="orbit-card orbit-card-top">
+              <span>Rain now</span>
+              <strong id="rain-now">-- mm</strong>
+            </div>
+            <div class="orbit-card orbit-card-bottom">
+              <span>Today</span>
+              <strong id="today-range">--° / --°</strong>
+            </div>
+            <div class="orbit-coordinate">118°47′ E</div>
+          </div>
+        </div>
+
+        <a class="continue-cue" href="#rhythm">
+          <span>Follow the day</span>
+          <svg><use href="#icon-arrow"></use></svg>
+        </a>
+      </section>
+
+      <section class="scene rhythm-scene" id="rhythm" data-scene="02">
+        <div class="scene-number" aria-hidden="true">02 / 06</div>
+        <div class="content-width section-frame">
+          <header class="section-heading reveal">
+            <div>
+              <span class="eyebrow">The next 24 hours · 今日节律</span>
+              <h2>The day has<br />a weather rhythm.</h2>
+            </div>
+            <p id="rhythm-summary">Temperature, rain, and cloud moving hour by hour.</p>
+          </header>
+
+          <div class="chart-stage reveal delay-1">
+            <div class="chart-legend">
+              <span><i class="legend-line"></i> Temperature</span>
+              <span><i class="legend-bar"></i> Rain chance</span>
+              <span class="chart-selection" id="chart-selection">Select an hour</span>
+            </div>
+            <div class="temperature-chart" id="temperature-chart" role="img" aria-label="24-hour temperature and rain chart"></div>
+          </div>
+
+          <div class="hour-strip" id="hour-strip" aria-label="Hourly forecast"></div>
+        </div>
+      </section>
+
+      <section class="scene outlook-scene" id="outlook" data-scene="03">
+        <div class="scene-number" aria-hidden="true">03 / 06</div>
+        <div class="content-width section-frame">
+          <header class="section-heading reveal">
+            <div>
+              <span class="eyebrow">Seven-day field notes · 一周展望</span>
+              <h2>A week written<br />in light and water.</h2>
+            </div>
+            <p>Tap any day to open its field note.</p>
+          </header>
+          <div class="forecast-deck reveal delay-1" id="forecast-deck"></div>
+          <div class="week-insight reveal delay-2">
+            <span class="week-insight-label">Week signal</span>
+            <p id="week-insight">Reading the seven-day pattern…</p>
+            <div class="week-range" id="week-range">--°</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="scene atmosphere-scene" id="atmosphere" data-scene="04">
+        <div class="scene-number" aria-hidden="true">04 / 06</div>
+        <div class="content-width atmosphere-layout">
+          <div class="air-orb-wrap reveal">
+            <div class="air-orb" id="air-orb">
+              <div class="air-orb-core">
+                <span>US AQI</span>
+                <strong id="aqi-value">--</strong>
+                <small id="aqi-label">Loading</small>
+              </div>
+            </div>
+            <p id="air-guidance">Checking today’s air…</p>
+          </div>
+
+          <div class="atmosphere-copy">
+            <header class="section-heading reveal">
+              <div>
+                <span class="eyebrow">Air & atmosphere · 呼吸南京</span>
+                <h2>What the air<br />is carrying.</h2>
+              </div>
+            </header>
+
+            <div class="atmosphere-grid reveal delay-1">
+              <article class="atmos-card">
+                <svg><use href="#icon-eye"></use></svg>
+                <span>Visibility</span>
+                <strong id="visibility">-- km</strong>
+                <small id="visibility-note">Horizontal clarity</small>
+              </article>
+              <article class="atmos-card">
+                <svg><use href="#icon-sun"></use></svg>
+                <span>UV index</span>
+                <strong id="uv-index">--</strong>
+                <small id="uv-note">Solar intensity</small>
+              </article>
+              <article class="atmos-card">
+                <svg><use href="#icon-drop"></use></svg>
+                <span>PM2.5</span>
+                <strong id="pm25">--</strong>
+                <small>µg/m³ · fine particles</small>
+              </article>
+              <article class="atmos-card">
+                <svg><use href="#icon-pressure"></use></svg>
+                <span>Pressure</span>
+                <strong id="pressure">--</strong>
+                <small>hPa · sea level</small>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="scene city-scene" id="city" data-scene="05">
+        <div class="scene-number" aria-hidden="true">05 / 06</div>
+        <div class="content-width section-frame">
+          <header class="section-heading reveal">
+            <div>
+              <span class="eyebrow">Weather-aware city guide · 城市灵感</span>
+              <h2>Let the weather<br />choose the route.</h2>
+            </div>
+            <p>Live recommendations tuned to rain, heat, wind, air, and daylight.</p>
+          </header>
+
+          <div class="city-plans" id="city-plans"></div>
+        </div>
+      </section>
+
+      <section class="scene pipeline-scene" id="pipeline" data-scene="06">
+        <div class="scene-number" aria-hidden="true">06 / 06</div>
+        <div class="content-width pipeline-layout">
+          <div class="pipeline-copy reveal">
+            <span class="eyebrow">Always in motion · 实时更新</span>
+            <h2>A weather story<br />that keeps breathing.</h2>
+            <p>
+              The page refreshes weather and atmosphere data every ten minutes,
+              remembers the last good reading, and stays useful when the network fades.
+            </p>
+            <button class="refresh-cta" id="refresh-cta">
+              <span>Refresh the sky</span>
+              <svg><use href="#icon-refresh"></use></svg>
+            </button>
+          </div>
+
+          <div class="pipeline-monitor reveal delay-1">
+            <div class="monitor-head">
+              <span>Live pipeline</span>
+              <span class="monitor-time" id="last-updated">Awaiting signal</span>
+            </div>
+            <div class="pipeline-flow" aria-label="Weather data workflow">
+              <div class="flow-node">
+                <i class="node-status" id="weather-node-status"></i>
+                <span>Weather models</span>
+                <small>Current + hourly + daily</small>
+              </div>
+              <span class="flow-connector"><i></i></span>
+              <div class="flow-node">
+                <i class="node-status" id="air-node-status"></i>
+                <span>Atmosphere</span>
+                <small>CAMS air quality</small>
+              </div>
+              <span class="flow-connector"><i></i></span>
+              <div class="flow-node">
+                <i class="node-status" id="story-node-status"></i>
+                <span>Living story</span>
+                <small>Auto-refresh + cache</small>
+              </div>
+            </div>
+            <div class="monitor-stats">
+              <div>
+                <span>Next refresh</span>
+                <strong id="next-refresh">10:00</strong>
+              </div>
+              <div>
+                <span>Timezone</span>
+                <strong>Asia/Shanghai</strong>
+              </div>
+              <div>
+                <span>Source</span>
+                <strong>Open-Meteo</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <footer class="footer content-width">
+          <span>Nanjing Atmosphere · 南京天气</span>
+          <span>Weather: Open-Meteo · Air quality: CAMS ENSEMBLE via Open-Meteo</span>
+        </footer>
+      </section>
+    </main>
+
+    <dialog class="day-dialog" id="day-dialog">
+      <button class="dialog-close icon-button" id="dialog-close" aria-label="Close day details">
+        <svg><use href="#icon-close"></use></svg>
+      </button>
+      <div id="day-dialog-content"></div>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

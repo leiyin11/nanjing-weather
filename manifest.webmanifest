@@ -1,0 +1,17 @@
+{
+  "name": "Nanjing Atmosphere",
+  "short_name": "NJ Weather",
+  "description": "A live, interactive weather story for Nanjing.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0b1d1b",
+  "theme_color": "#132d2a",
+  "icons": [
+    {
+      "src": "assets/weather-mark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

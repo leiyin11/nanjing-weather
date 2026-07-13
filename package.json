@@ -1,0 +1,16 @@
+{
+  "name": "nanjing-atmosphere",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A live interactive weather story for Nanjing.",
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node server.mjs",
+    "test": "node --test --test-isolation=none",
+    "verify": "node scripts/verify.mjs && node --test --test-isolation=none && node --check app.js && node --check weather.js && node --check server.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
