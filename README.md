@@ -2,6 +2,10 @@
 
 A live, interactive weather story for Nanjing. It combines a presentation-like narrative with current conditions, the next 24 hours, a seven-day outlook, air quality, and weather-aware city recommendations.
 
+## Live app
+
+**[Open Nanjing Atmosphere →](https://leiyin11.github.io/nanjing-weather/)**
+
 ## Run it
 
 Requires Node.js 20 or later. No package installation is needed.
